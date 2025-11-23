@@ -1,0 +1,573 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Roboto:wght@300;400;500&display=swap');
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  color: #ffffff;
+}
+
+/* App wrapper – always sized to viewport with a margin frame */
+.app {
+  position: fixed;                 /* sit on top of the game view */
+  inset: 5vh 7vw;                  /* responsive margins */
+  max-width: 100vw;
+  max-height: 100vh;
+
+  background: rgba(5, 5, 10, 0.9);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Browser chrome */
+
+.browser-bar {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: linear-gradient(to right, #15151c, #181821);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.browser-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-circle {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #0078d7; /* Azure blue instead of red */
+}
+
+.btn-circle:nth-child(2) {
+  background: #febc2e;
+}
+.btn-circle:nth-child(3) {
+  background: #28c840;
+}
+
+.browser-url {
+  flex: 1;
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.browser-balance {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Make base layers a lower z so detail panel can sit above */
+.hero,
+.shop-shell,
+.browser-bar {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hero */
+
+.hero {
+  position: relative;
+  height: 160px;
+  background-image: url('https://imgimp.xyz/images/Stoic-2025-11-23_02-56-41-692277e94b810.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.4));
+}
+
+.hero-main {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  justify-content: space-between;
+}
+
+.hero-logo {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-script {
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.4rem;
+  letter-spacing: 2px;
+  color: #0078d7; /* Azure blue */
+  text-transform: uppercase;
+}
+
+.logo-sub {
+  font-family: 'Oswald', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hero-text h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+}
+
+.hero-text p {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Shop Layout */
+
+.shop-shell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 22px 20px;
+  gap: 10px;
+  min-height: 0; /* allow inner scroll areas to size correctly */
+}
+
+.shop-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shop-tabs .tab {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  outline: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.shop-tabs .tab.active {
+  background: #0078d7;   /* Azure blue */
+  border-color: #0078d7; /* Azure blue */
+  color: #ffffff;
+}
+
+.shop-sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+.shop-sort span {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sort-btn {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+
+/* Vehicle grid */
+
+.vehicle-grid {
+  margin-top: 10px;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.vehicle-card {
+  background: radial-gradient(circle at top, rgba(0,120,215,0.2), rgba(10,10,20,1)); /* Azure glow */
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 120, 215, 0.7); /* Azure border */
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.7);
+}
+
+/* Thumb area: this is important for images */
+
+.vehicle-thumb {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 */
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Make sure images are visible */
+
+.vehicle-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block; /* critical */
+}
+
+/* Initials fallback */
+
+.vehicle-thumb span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+}
+
+.vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vehicle-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.vehicle-price {
+  font-size: 0.85rem;
+  color: #ffdd4a;
+}
+
+.vehicle-tagline {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Detail overlay – fills most of app, responsive */
+
+.detail {
+  position: absolute;
+  top: 3vh;
+  bottom: 3vh;
+  left: 3vw;
+  right: 3vw;
+
+  background: rgba(5, 5, 10, 0.98);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+
+  z-index: 50;
+  max-width: calc(100% - 6vw);
+  max-height: calc(100% - 6vh);
+}
+
+.detail-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 18px;
+  min-height: 0;
+}
+
+/* Header */
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.detail-back,
+.detail-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detail-title h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.detail-title p {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  color: #ffdd4a;
+}
+
+/* Body */
+
+.detail-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 16px;
+  margin-top: 6px;
+}
+
+/* Left: main image */
+
+.detail-main-image {
+  display: flex;
+  align-items: stretch;
+}
+
+.detail-image-placeholder {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, rgba(0,120,215,0.35), rgba(5,5,10,1)); /* Azure glow */
+}
+
+/* Large image */
+
+.detail-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none; /* JS flips this to block when imageUrl exists */
+}
+
+/* Initials in detail */
+
+#detailInitials {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 4px;
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.9);
+}
+
+/* Right: info */
+
+.detail-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-copy {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Colors */
+
+.detail-colors h4,
+.detail-stats h4 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0.8);
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.color-dot.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px #ffdd4a;
+}
+
+/* Stats */
+
+.detail-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.stat-row span {
+  width: 90px;
+}
+
+.stat-bar {
+  flex: 1;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.stat-bar .fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0078d7, #ffdd4a); /* Azure → gold */
+  transition: width 0.15s ease;
+}
+
+/* Buy button */
+
+.buy-btn {
+  margin-top: auto;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(90deg, #0078d7, #00bfff); /* Azure blues */
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+}
+
+/* Scrollbar styling */
+
+.vehicle-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.vehicle-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.vehicle-grid::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+
+/* ─────────────────────────────
+   Responsive tweaks
+   ───────────────────────────── */
+
+/* Slightly smaller desktops */
+@media (max-width: 1600px) {
+  .app {
+    inset: 4vh 5vw;
+  }
+}
+
+/* Medium widths: 2-col grid, stacked detail */
+@media (max-width: 1300px) {
+  .app {
+    inset: 3vh 3vw;
+  }
+
+  .vehicle-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detail-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Narrow screens: tighter frame, hero reflows */
+@media (max-width: 1000px) {
+  .app {
+    inset: 2vh 2vw;
+  }
+
+  .hero {
+    height: 130px;
+  }
+
+  .hero-main {
+    padding: 0 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 4px;
+  }
+}

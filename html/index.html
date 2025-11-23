@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Legendary Autosport</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+  <!-- Kill browser caching so we always get the latest script.css/js -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app-root" class="app hidden">
+    <div class="browser-bar">
+      <div class="browser-controls">
+        <span class="btn-circle"></span>
+        <span class="btn-circle"></span>
+        <span class="btn-circle"></span>
+      </div>
+      <div class="browser-url">
+        <span>www.legendary-autosport.net</span>
+      </div>
+      <div class="browser-balance" id="browser-balance"></div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-main">
+        <div class="hero-logo">
+          <span class="logo-script">Legendary</span>
+          <span class="logo-sub">AUTOSPORT</span>
+        </div>
+        <div class="hero-text">
+          <h2>CHOOSE FROM OUR TOP-END</h2>
+          <p>High performance vehicles at sharp prices.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="shop-shell">
+      <div class="shop-tabs">
+        <button class="tab active" data-cat="featured">Featured</button>
+        <button class="tab" data-cat="2door">2 Door</button>
+        <button class="tab" data-cat="4door">4 Door</button>
+        <button class="tab" data-cat="motorcycles">Motorcycles</button>
+        <button class="tab" data-cat="special">Special</button>
+        <button class="tab" data-cat="offroad">Offroad</button>
+      </div>
+      <div class="shop-sort">
+        <span id="dealerName">Premium Dealership</span>
+        <button id="sortPrice" class="sort-btn">Sort by price</button>
+      </div>
+      <div id="vehicleGrid" class="vehicle-grid"></div>
+    </div>
+
+    <!-- Detail overlay -->
+    <div id="detailPanel" class="detail hidden">
+      <div class="detail-inner">
+        <div class="detail-header">
+          <button id="detailBack" class="detail-back">&larr;</button>
+          <div class="detail-title">
+            <h2 id="detailName">Vehicle Name</h2>
+            <p id="detailPrice">$0</p>
+          </div>
+          <button id="detailClose" class="detail-close">&times;</button>
+        </div>
+
+        <div class="detail-body">
+          <div class="detail-main-image">
+            <div class="detail-image-placeholder">
+              <img id="detailImage" class="detail-img" src="" alt="Vehicle image">
+              <span id="detailInitials">APX</span>
+            </div>
+          </div>
+          <div class="detail-side">
+            <div class="detail-copy" id="detailCopy">
+              A stylish high-performance vehicle. Configure the color and purchase to have it delivered to the forecourt.
+            </div>
+
+            <div class="detail-colors">
+              <h4>Select from available colors</h4>
+              <div id="colorRow" class="color-row"></div>
+            </div>
+
+            <div class="detail-stats">
+              <h4>Vehicle stats</h4>
+              <div class="stat-row">
+                <span>Top speed</span>
+                <div class="stat-bar"><div id="statSpeed" class="fill"></div></div>
+              </div>
+              <div class="stat-row">
+                <span>Acceleration</span>
+                <div class="stat-bar"><div id="statAccel" class="fill"></div></div>
+              </div>
+              <div class="stat-row">
+                <span>Braking</span>
+                <div class="stat-bar"><div id="statBraking" class="fill"></div></div>
+              </div>
+              <div class="stat-row">
+                <span>Traction</span>
+                <div class="stat-bar"><div id="statTraction" class="fill"></div></div>
+              </div>
+            </div>
+
+            <button id="buyButton" class="buy-btn">Purchase vehicle</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- bump the version any time you change script.js -->
+  <script src="script.js?v=4"></script>
+</body>
+</html>
