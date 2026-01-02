@@ -1,39 +1,36 @@
 local RESOURCE_NAME = GetCurrentResourceName()
-local fw = exports["Az-Framework"]
+local fw = exports['Az-Framework']  
 
 Config = Config or {}
-if Config.Debug == nil then
-    Config.Debug = true
-end
+if Config.Debug == nil then Config.Debug = true end  
+
 
 local function debugPrint(...)
-    if not Config.Debug then
-        return
-    end
-    local args = {...}
+    if not Config.Debug then return end
+    local args = { ... }
     for i = 1, #args do
         args[i] = tostring(args[i])
     end
     print(("^3[%s]^7 %s"):format(RESOURCE_NAME, table.concat(args, " ")))
 end
 
-AddEventHandler(
-    "onResourceStart",
-    function(res)
-        if res ~= RESOURCE_NAME then
-            return
-        end
-        debugPrint("Resource started, checking Az-Framework exports...")
 
-        if not fw then
-            debugPrint("fw == nil (exports['Az-Framework'] missing?)")
-        else
-            debugPrint("fw handle OK:", tostring(fw))
-            debugPrint("Has GetPlayerMoney?", fw.GetPlayerMoney and "yes" or "no")
-            debugPrint("Has deductMoney?", fw.deductMoney and "yes" or "no")
-        end
+AddEventHandler('onResourceStart', function(res)
+    if res ~= RESOURCE_NAME then return end
+    debugPrint("Resource started, checking Az-Framework exports...")
+
+    if not fw then
+        debugPrint("fw == nil (exports['Az-Framework'] missing?)")
+    else
+        debugPrint("fw handle OK:", tostring(fw))
+        debugPrint("Has GetPlayerMoney?", fw.GetPlayerMoney and "yes" or "no")
+        debugPrint("Has deductMoney?", fw.deductMoney and "yes" or "no")
     end
-)
+end)
+
+
+
+
 
 local function getDealership(id)
     if not Config.Dealerships then
@@ -72,6 +69,10 @@ local function getVehicleConfig(dealerId, vehicleId)
     return nil
 end
 
+
+
+
+
 local function chargePlayer(src, price)
     price = tonumber(price) or 0
     debugPrint("chargePlayer: src", src, "price", price)
@@ -91,12 +92,9 @@ local function chargePlayer(src, price)
         return
     end
 
-    local ok, err =
-        pcall(
-        function()
-            fw:deductMoney(src, price)
-        end
-    )
+    local ok, err = pcall(function()
+        fw:deductMoney(src, price)  
+    end)
 
     if not ok then
         debugPrint("Error calling fw:deductMoney for src", src, "price", price, "err:", err)
@@ -104,6 +102,10 @@ local function chargePlayer(src, price)
         debugPrint("chargePlayer: fw:deductMoney called successfully.")
     end
 end
+
+
+
+
 
 local function handlePurchase(src, dealerId, vehicleId, colorName)
     debugPrint("handlePurchase: src", src, "dealerId", dealerId, "vehicleId", vehicleId, "color", colorName or "nil")
@@ -123,74 +125,59 @@ local function handlePurchase(src, dealerId, vehicleId, colorName)
     end
 
     local price = tonumber(vCfg.price) or 0
-    if price < 0 then
-        price = 0
-    end
+    if price < 0 then price = 0 end
     debugPrint("handlePurchase: resolved price =", price, "for", vCfg.name or vCfg.model or "vehicle")
 
+    
     local function finalizePurchase()
         debugPrint("finalizePurchase: src", src, "dealerId", dealerId, "vehicleId", vehicleId, "price", price)
 
         chargePlayer(src, price)
 
-        debugPrint(
-            "finalizePurchase: TriggerClientEvent spawnPurchasedVehicle -> dealerId",
-            dealerId,
-            "model",
-            vCfg.model,
-            "color",
-            colorName or "nil"
-        )
+        debugPrint("finalizePurchase: TriggerClientEvent spawnPurchasedVehicle -> dealerId", dealerId, "model", vCfg.model, "color", colorName or "nil")
         TriggerClientEvent("apx-legendary:spawnPurchasedVehicle", src, dealerId, vCfg.model, colorName)
 
         debugPrint("finalizePurchase: TriggerClientEvent purchaseResult SUCCESS")
-        TriggerClientEvent(
-            "apx-legendary:purchaseResult",
-            src,
-            true,
-            string.format("You bought a %s for $%s!", vCfg.name or vCfg.model or "vehicle", price)
-        )
+        TriggerClientEvent("apx-legendary:purchaseResult", src, true,
+            string.format("You bought a %s for $%s!", vCfg.name or vCfg.model or "vehicle", price))
     end
 
+    
     if price <= 0 then
         debugPrint("handlePurchase: price <= 0, skipping money check, proceeding to spawn.")
         finalizePurchase()
         return
     end
 
+    
     if not fw or not fw.GetPlayerMoney then
         debugPrint("handlePurchase: fw or fw.GetPlayerMoney is nil, ALLOWING purchase and spawning anyway.")
         finalizePurchase()
         return
     end
 
+    
+    
+    
     local finished = false
 
     local function done(ok, reason, wallet)
-        if finished then
-            return
-        end
+        if finished then return end
         finished = true
 
         if not ok then
             debugPrint("handlePurchase: money check FAILED for src", src, "reason:", reason or "nil")
-            TriggerClientEvent(
-                "apx-legendary:purchaseResult",
-                src,
-                false,
-                reason or "We couldn't check your funds. Try again."
-            )
+            TriggerClientEvent("apx-legendary:purchaseResult", src, false,
+                reason or "We couldn't check your funds. Try again.")
             return
         end
 
         if wallet then
-            debugPrint(
-                ("handlePurchase: money check OK, cash=%s bank=%s price=%s"):format(
-                    tostring(wallet.cash or 0),
-                    tostring(wallet.bank or 0),
-                    tostring(price)
-                )
-            )
+            debugPrint(("handlePurchase: money check OK, cash=%s bank=%s price=%s"):format(
+                tostring(wallet.cash or 0),
+                tostring(wallet.bank or 0),
+                tostring(price)
+            ))
         else
             debugPrint("handlePurchase: money check OK (no wallet table passed).")
         end
@@ -200,34 +187,30 @@ local function handlePurchase(src, dealerId, vehicleId, colorName)
 
     debugPrint("handlePurchase: calling fw:GetPlayerMoney for src", src)
 
-    local ok, errMsg =
-        pcall(
-        function()
-            fw:GetPlayerMoney(
-                src,
-                function(err, wallet)
-                    debugPrint("GetPlayerMoney callback fired for src", src, "err =", err or "nil")
+    
+    local ok, errMsg = pcall(function()
+        fw:GetPlayerMoney(src, function(err, wallet)
+            debugPrint("GetPlayerMoney callback fired for src", src, "err =", err or "nil")
 
-                    if err then
-                        done(false, ("Money error: %s"):format(tostring(err)), wallet)
-                        return
-                    end
+            if err then
+                
+                done(false, ("Money error: %s"):format(tostring(err)), wallet)
+                return
+            end
 
-                    wallet = wallet or {}
-                    local cash = tonumber(wallet.cash or 0) or 0
-                    local bank = tonumber(wallet.bank or 0) or 0
-                    debugPrint("GetPlayerMoney result: src", src, "cash =", cash, "bank =", bank, "price =", price)
+            wallet = wallet or {}
+            local cash = tonumber(wallet.cash or 0) or 0
+            local bank = tonumber(wallet.bank or 0) or 0
+            debugPrint("GetPlayerMoney result: src", src, "cash =", cash, "bank =", bank, "price =", price)
 
-                    if cash < price then
-                        done(false, "You don't have enough cash.", wallet)
-                        return
-                    end
+            if cash < price then
+                done(false, "You don't have enough cash.", wallet)
+                return
+            end
 
-                    done(true, nil, wallet)
-                end
-            )
-        end
-    )
+            done(true, nil, wallet)
+        end)
+    end)
 
     if not ok then
         debugPrint("handlePurchase: pcall around fw:GetPlayerMoney FAILED:", errMsg)
@@ -236,55 +219,33 @@ local function handlePurchase(src, dealerId, vehicleId, colorName)
         debugPrint("handlePurchase: fw:GetPlayerMoney called successfully (awaiting callback).")
     end
 
-    SetTimeout(
-        1500,
-        function()
-            if finished then
-                return
-            end
-            debugPrint(
-                "handlePurchase: GetPlayerMoney TIMEOUT for src",
-                src,
-                "- allowing purchase WITHOUT money check (check Az-Framework GetPlayerMoney)."
-            )
-            done(true, "timeout_fallback", nil)
-        end
-    )
+    
+    SetTimeout(1500, function()
+        if finished then return end
+        debugPrint("handlePurchase: GetPlayerMoney TIMEOUT for src", src,
+            "- allowing purchase WITHOUT money check (check Az-Framework GetPlayerMoney).")
+        done(true, "timeout_fallback", nil)
+    end)
 end
 
-RegisterNetEvent(
-    "apx-legendary:buyFromNui",
-    function(dealerId, vehicleId, colorName)
-        local src = source
-        debugPrint(
-            "EVENT apx-legendary:buyFromNui fired. src",
-            src,
-            "dealerId",
-            dealerId,
-            "vehicleId",
-            vehicleId,
-            "colorName",
-            colorName or "nil"
-        )
-        handlePurchase(src, dealerId, vehicleId, colorName)
-    end
-)
 
-RegisterNetEvent(
-    "apx-legendary:buyFromLot",
-    function(dealerId, vehicleId)
-        local src = source
-        debugPrint("EVENT apx-legendary:buyFromLot fired. src", src, "dealerId", dealerId, "vehicleId", vehicleId)
-        handlePurchase(src, dealerId, vehicleId, nil)
-    end
-)
 
-AddEventHandler(
-    "onResourceStop",
-    function(res)
-        if res ~= RESOURCE_NAME then
-            return
-        end
-        debugPrint("Resource stopping, server.lua cleanup complete.")
-    end
-)
+
+
+RegisterNetEvent("apx-legendary:buyFromNui", function(dealerId, vehicleId, colorName)
+    local src = source
+    debugPrint("EVENT apx-legendary:buyFromNui fired. src", src, "dealerId", dealerId, "vehicleId", vehicleId, "colorName", colorName or "nil")
+    handlePurchase(src, dealerId, vehicleId, colorName)
+end)
+
+RegisterNetEvent("apx-legendary:buyFromLot", function(dealerId, vehicleId)
+    local src = source
+    debugPrint("EVENT apx-legendary:buyFromLot fired. src", src, "dealerId", dealerId, "vehicleId", vehicleId)
+    handlePurchase(src, dealerId, vehicleId, nil)
+end)
+
+
+AddEventHandler('onResourceStop', function(res)
+    if res ~= RESOURCE_NAME then return end
+    debugPrint("Resource stopping, server.lua cleanup complete.")
+end)

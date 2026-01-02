@@ -1,3 +1,11 @@
+// =========================================================
+// Legendary Autosport - script.js
+// Rule you wanted:
+//   1) If config has imageUrl -> use it
+//   2) If not -> use FiveM docs: https://docs.fivem.net/vehicles/<model>.webp
+//   3) If that fails -> use DEFAULT placeholder
+// =========================================================
+
 const appRoot = document.getElementById('app-root');
 const gridEl = document.getElementById('vehicleGrid');
 const dealerNameEl = document.getElementById('dealerName');
@@ -38,15 +46,48 @@ const colorSwatches = {
 // Default fallback image
 const DEFAULT_IMGIMP = 'https://imgimp.xyz/images/Stoic-2025-11-22_23-41-40-69224a34db3a9.png';
 
-// Optional hard overrides if you ever want them.
-// Now only used as *fallback* if config.imageUrl is empty.
-const imageOverrides = {
-  blista: DEFAULT_IMGIMP,
-  issi2:  DEFAULT_IMGIMP,
-  futo:   DEFAULT_IMGIMP,
-  italirsx: DEFAULT_IMGIMP,
-  pariah: DEFAULT_IMGIMP,
-};
+// FiveM docs fallback base
+const FIVEM_DOCS_BASE = 'https://docs.fivem.net/vehicles/';
+
+// Build docs URL from model (preferred) or id
+function buildFiveMDocsUrl(vehicle) {
+  const key = (vehicle?.model || vehicle?.id || '').toString().trim().toLowerCase();
+  if (!key) return '';
+  return `${FIVEM_DOCS_BASE}${encodeURIComponent(key)}.webp`;
+}
+
+// Candidates: config imageUrl -> FiveM docs -> default
+function getImageCandidates(vehicle) {
+  const configUrl = (vehicle?.imageUrl || '').trim();
+  const docsUrl = buildFiveMDocsUrl(vehicle);
+
+  const candidates = [];
+  [configUrl, docsUrl, DEFAULT_IMGIMP].forEach(u => {
+    if (u && !candidates.includes(u)) candidates.push(u);
+  });
+
+  return candidates;
+}
+
+// Apply image with multi-step fallback using onerror chaining
+function applyImageWithFallback(imgEl, vehicle) {
+  const urls = getImageCandidates(vehicle);
+  let idx = 0;
+
+  // Clear old handler
+  imgEl.onerror = null;
+
+  const tryNext = () => {
+    if (idx >= urls.length) {
+      imgEl.onerror = null;
+      return;
+    }
+    imgEl.src = urls[idx++];
+  };
+
+  imgEl.onerror = tryNext;
+  tryNext();
+}
 
 function getResourceName() {
   return (window.GetParentResourceName && GetParentResourceName()) || 'apx-legendary-shop';
@@ -116,12 +157,15 @@ function renderGrid() {
   }
 
   filteredVehicles.forEach(v => {
-    // Use config URL first, then override, then default
-    const configUrl   = (v.imageUrl || '').trim();
-    const overrideUrl = imageOverrides[v.id];
-    const effectiveUrl = configUrl || overrideUrl || DEFAULT_IMGIMP;
-
-    console.log('[Legendary] grid vehicle:', v.id, 'configUrl:', v.imageUrl, 'effectiveUrl:', effectiveUrl);
+    // Debug visibility
+    console.log(
+      '[Legendary] grid vehicle:',
+      v.id,
+      'imageUrl:',
+      (v.imageUrl || '').trim(),
+      'docsUrl:',
+      buildFiveMDocsUrl(v)
+    );
 
     const card = document.createElement('div');
     card.className = 'vehicle-card';
@@ -131,8 +175,11 @@ function renderGrid() {
     thumb.className = 'vehicle-thumb';
 
     const img = document.createElement('img');
-    img.src = effectiveUrl;
     img.alt = v.name || v.model || 'Vehicle image';
+
+    // Rule: config -> docs -> default
+    applyImageWithFallback(img, v);
+
     thumb.appendChild(img);
 
     const info = document.createElement('div');
@@ -200,11 +247,14 @@ function openDetailForVehicle(vehicle) {
   selectedVehicle = vehicle;
   selectedColor = null;
 
-  const configUrl   = (vehicle.imageUrl || '').trim();
-  const overrideUrl = imageOverrides[vehicle.id];
-  const effectiveUrl = configUrl || overrideUrl || DEFAULT_IMGIMP;
-
-  console.log('[Legendary] open detail for:', vehicle.id, 'configUrl:', vehicle.imageUrl, 'effectiveUrl:', effectiveUrl);
+  console.log(
+    '[Legendary] open detail for:',
+    vehicle.id,
+    'imageUrl:',
+    (vehicle.imageUrl || '').trim(),
+    'docsUrl:',
+    buildFiveMDocsUrl(vehicle)
+  );
 
   detailName.textContent = vehicle.name || vehicle.model || 'Vehicle';
   detailPrice.textContent = formatPrice(vehicle.price);
@@ -221,7 +271,9 @@ function openDetailForVehicle(vehicle) {
 
   detailImage.style.display = 'block';
   detailInitials.style.display = 'none';
-  detailImage.src = effectiveUrl;
+
+  // Rule: config -> docs -> default
+  applyImageWithFallback(detailImage, vehicle);
 
   const stats = vehicle.stats || {};
   setStatBar(statSpeed, stats.speed);
@@ -270,10 +322,12 @@ function handleOpenShop(data) {
   allVehicles = Array.isArray(currentDealer.stock) ? currentDealer.stock.slice() : [];
   selectedCategory = 'featured';
   sortAscending = true;
+
   renderTabs();
   applyCategoryFilter();
   applySort();
   renderGrid();
+
   showApp();
   closeDetail();
 }
